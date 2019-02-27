@@ -1,34 +1,35 @@
-// window.onload = function() {
-	let w = window.innerWidth;
-	let h = window.innerHeight;
+/* ––– p5 js ––– */
 
-	/* ––– p5 js ––– */
-
-	let cube;
-
-	function preload() {
-	  cube = loadModel("/models/cube.obj")
-	}
+let w = window.innerWidth;
+let h = window.innerHeight;
 
 
-	function setup() {
-		let canvas = createCanvas(w, h, WEBGL);
-		canvas.parent("canvasWrapper");
-		background(255, 0, 0);
-		rotateY(millis() / 100)
-		// canvas.translate(width/2, height/2);
-		model(cube);
-	}
+let cube;
 
-	function draw() {
-		background(255, 0, 0);
-		rotateY(millis() / 100)
-		// canvas.translate(width/2, height/2);
-		model(cube);
-	}
-// }
+function preload() {
+  cube = loadModel("/models/cube.obj")
+}
+
+
+function setup() {
+	let canvas = createCanvas(w, h, WEBGL);
+	canvas.parent("canvasWrapper");
+}
+
+function draw() {
+	background(255, 0, 0);
+	push();
+	rotateY(millis() / 250)
+	model(cube);
+	pop();
+	// translate(100, 0, 0);
+}
 
 window.onload = function() {
+
+/* ––– MQTT ––– */
+
+
 
   var client = mqtt.connect('mqtt://msolcany~nodemcu@broker.shiftr.io', {
     clientId: 'browser-local'

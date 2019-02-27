@@ -1,4 +1,19 @@
-canvas {
-  position: absolute; }
+@font-face {
+  font-family: 'inputMonoCompressed';
+  src: url("/fonts/InputMonoCompressed-Regular.ttf") format("truetype"); }
+body {
+  position: relative; }
+  body h1 {
+    font-family: 'inputMonoCompressed', monospace;
+    font-size: 32px;
+    color: black; }
+    body h1.absolute {
+      position: absolute;
+      z-index: 999;
+      left: 30px;
+      top: 30px; }
+  body canvas {
+    position: absolute;
+    z-index: 1; }
 
 /*# sourceMappingURL=main.css.map */
