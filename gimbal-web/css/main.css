@@ -1,19 +1,80 @@
 @font-face {
   font-family: 'inputMonoCompressed';
   src: url("/fonts/InputMonoCompressed-Regular.ttf") format("truetype"); }
+@font-face {
+  font-family: 'Fira Sans'; }
 body {
-  position: relative; }
-  body h1 {
-    font-family: 'inputMonoCompressed', monospace;
-    font-size: 32px;
-    color: black; }
-    body h1.absolute {
+  position: relative;
+  background: #ffeb16;
+  width: 100vw;
+  height: 100vh; }
+  body #p5_loading {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #ffeb16;
+    z-index: 999; }
+    body #p5_loading .container {
       position: absolute;
-      z-index: 999;
-      left: 30px;
-      top: 30px; }
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); }
+      body #p5_loading .container img.logo {
+        width: 120px; }
+      body #p5_loading .container h1 {
+        font-family: 'Fira Sans';
+        font-weight: 900; }
+  body div.content {
+    position: absolute;
+    left: 0;
+    top: 100px;
+    width: 26%;
+    padding-left: 30px;
+    padding-right: 30px; }
+    body div.content h1 {
+      font-family: 'Fira Sans';
+      font-weight: 900;
+      font-size: 35px; }
+    body div.content h2 {
+      font-family: 'Fira Sans';
+      font-weight: 400;
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 30px; }
+    body div.content p {
+      font-family: 'Fira Sans';
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 26px; }
+  body .receiver {
+    position: absolute;
+    left: 32%;
+    top: 20px;
+    z-index: 1000; }
+    body .receiver h2 {
+      font-family: 'Fira Sans';
+      font-weight: 400;
+      font-size: 16px;
+      display: inline-block; }
+    body .receiver #receiver_ {
+      width: 10px;
+      height: 10px;
+      border-radius: 100%;
+      background-color: #fff;
+      display: inline-block; }
+  body img.logo {
+    position: absolute;
+    width: 120px;
+    z-index: 998;
+    left: 30px;
+    top: 30px; }
   body canvas {
     position: absolute;
     z-index: 1; }
+  body .grid {
+    position: absolute;
+    right: 0;
+    width: 70%;
+    height: 100vh; }
 
 /*# sourceMappingURL=main.css.map */

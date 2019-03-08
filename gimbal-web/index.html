@@ -10,21 +10,42 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" href="icon.png">
   <!-- Place favicon.ico in the root directory -->
+  <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400,500i,700, 700i,900" rel="stylesheet">
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
-
-  <meta name="theme-color" content="#fafafa">
-  <script src="https://assets.shiftr.io/js/mqtt-2.9.0.js"></script>
-
 </head>
 
 <body>
+<div id="p5_loading"> 
+  <div class="container">
+    <h1> Loading !  </h1>
+  </div>
+</div> 
+  
+  <img src="img/logo.png" class="logo">
+  <div class="content">
+    <h1> Open Axis is a gyroscope with an open access to its rotation data</h1>
 
-  <h1 class="absolute"> super gimbal</h1>
-  <div id="canvasWrapper">
+    <h2> rotation data lockdown</h2>
+    <p> Iphones contain high quality gyroscopes and accelerometers. The rotation data remain locked in the phone unless a dedicated app is made. Open Axis provides gyroscope that streams data over Internet. </p>
+
+
+    <h2> a real world interface</h2>
+    <p>  Open Axis is a human computer interface where real world action of rotation corresponds to similar action in computer</p>
 
   </div>
+<!-- 
+  <div class="receiver">
+    <h2> receiving data </h2>
+    <div id="receiver_"> </div>
+  </div> -->
+
+  <div id="canvasWrapper">
+  <img src="img/grid.png" class="grid">
+
+  </div>
+  <script src="https://assets.shiftr.io/js/mqtt-2.9.0.js"></script>
    <script src="js/vendor/p5.min.js"></script>
    <script src="js/main.js"></script>
 
