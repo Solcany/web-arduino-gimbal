@@ -8,34 +8,96 @@ var roll = 0;
 var pitch = 0;
 
 // in radians
-var yawComepnsation = 0;
-var pitchCompensation = -0.09 //0.083;
+// var yawComepnsation = 0;
+var pitchCompensation = -0.09
 
-let axisArmLength = 500;
-let axisoff = 25;
-let iphone;
+var axisArmLength = 500;
+var axisoff = 25;
+var iphoneModel, libremModel;
 
-var renderAxes = true;
+var DEBUG_RenderAxises = false;
+
+var iphone, librem;
+var font
 
 function preload() {
-  iphone = loadModel("/models/iphone5_3.obj")
+  iphoneModel = loadModel("/models/iphone5_3.obj")
+  libremModel = loadModel("/models/librem3.obj")
+  font = loadFont('/fonts/fndrs.otf')
 }
 
 
 function setup() {
 	let canvas = createCanvas(w, h, WEBGL);
 	canvas.parent("canvasWrapper");
+
+	textAlign(CENTER, CENTER);
+	textSize(50)
+	textFont(font);
+
+
+	iphone = new yprModel(iphoneModel, 
+					   {x: -300, y: 0, z: 0},
+					   {fill: '#ff0000',
+						stroke: '#000000',
+						strokeWeight: 3.0},
+						{yaw: yaw, pitch: pitch, roll: roll},
+						TWO_PI*10)
+
+	librem = new yprModel(libremModel, 
+					   {x: 300, y: 0, z: 0},
+					   {fill: '#ff0000',
+						stroke: '#000000',
+						strokeWeight: 3.0},
+						{yaw: yaw, pitch: pitch, roll: roll})
 }
 
 function draw() {
 	clear();
-	// translate(250, 0, 0)
-	rotateX(roll);
-	rotateY(-yaw + yawComepnsation);
-	rotateZ(pitch + pitchCompensation);
 
-	if(renderAxes) {
-		strokeWeight(3.0);
+
+	iphone.update();
+	iphone.render();
+	// librem.update();
+	// librem.render();
+	// rotateX(roll);
+	// rotateY(-yaw);
+	// rotateZ(pitch + pitchCompensation);
+
+}
+
+function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemapping=null) {
+	this.yaw = yawPitchRoll.yaw,
+	this.pitch = yawPitchRoll.pitch,
+	this.roll = yawPitchRoll.roll;
+
+	this.render = function() {
+		push()
+			translate(pos.x, pos.y, pos.z);
+			rotateX(roll);
+			rotateY(yaw)
+			rotateZ(pitch);
+
+			stroke(style.stroke);
+			strokeWeight(style.strokeWeight);
+			fill(style.fill);
+
+
+			model(preloadedModel);	
+
+			push()
+			translate(0,0,100)
+			text('p5.js', 0, 0);
+			pop()
+
+			if(DEBUG_RenderAxises) {
+				this.renderAxises();
+			}
+		pop();
+	},
+
+	this.renderAxises = function() {
+		strokeWeight(2.0);
 		stroke(255,0,0);
 		line(-axisArmLength,0,0, axisArmLength,0,0)
 		stroke(0,255,0);
@@ -44,15 +106,21 @@ function draw() {
 		line(0,0, -axisArmLength, 0,0,axisArmLength)	
 	}
 
-	stroke(0);
-	strokeWeight(1);
-	// scale(1);
-	fill('#ffeb16');
-	model(iphone);
+	this.update = function() {
+		this.yaw = yaw;
+		this.pitch = pitch;
+		this.roll = roll;
 
+		if(yawPitchRollRemapping != null) {
 
-	// translate(100, 0, 0);
+		}
+	}
+
+	this.remapYPR = function() {
+
+	}
 }
+
 
 window.onload = function() {
 
