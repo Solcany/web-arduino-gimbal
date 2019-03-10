@@ -5,25 +5,36 @@
   font-family: 'Fira Sans'; }
 body {
   position: relative;
-  background: #ffeb16;
   width: 100vw;
   height: 100vh; }
+  body #overlay {
+    display: block;
+    width: 100vw;
+    height: 70vh;
+    background: blue;
+    position: absolute;
+    transition: top 0.75s;
+    z-index: 1000; }
+    body #overlay.visible {
+      top: 0; }
+    body #overlay.invisible {
+      top: -69vh; }
   body #p5_loading {
+    position: absolute;
+    width: 0;
+    height: 0; }
+  body #assetsPreloadOverlay {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #ffeb16;
-    z-index: 999; }
-    body #p5_loading .container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%); }
-      body #p5_loading .container img.logo {
-        width: 120px; }
-      body #p5_loading .container h1 {
-        font-family: 'Fira Sans';
-        font-weight: 900; }
+    z-index: 900;
+    background-color: black;
+    opacity: 0.9;
+    transition: opacity 0.35s; }
+    body #assetsPreloadOverlay.invisible {
+      opacity: 0.0; }
+    body #assetsPreloadOverlay.seethrough {
+      display: none; }
   body div.content {
     position: absolute;
     left: 0;
@@ -70,7 +81,9 @@ body {
     top: 30px; }
   body canvas {
     position: absolute;
-    z-index: 1; }
+    z-index: 1;
+    background: url("../img/grid2.png");
+    background-repeat: cover; }
   body .grid {
     position: absolute;
     right: 0;

@@ -17,10 +17,16 @@
 </head>
 
 <body>
-<div id="p5_loading"> 
-  <div class="container">
-    <h1> Loading !  </h1>
+
+  <div id="overlay" class="visible">
+      
+      <button type='button' id="startButton"> conenct to open axis</button>
+
   </div>
+
+
+<div id="p5_loading"> 
+
 </div> 
   
  <!--  <img src="img/logo.png" class="logo">
@@ -40,10 +46,12 @@
     <h2> receiving data </h2>
     <div id="receiver_"> </div>
   </div> -->
+  <div id="assetsPreloadOverlay"></div>
 
   <div id="canvasWrapper">
-<!--   <img src="img/grid.png" class="grid">
- -->
+
+    <!--   <img src="img/grid.png" class="grid"> -->
+
   </div>
   <script src="https://assets.shiftr.io/js/mqtt-2.9.0.js"></script>
    <script src="js/vendor/p5.min.js"></script>

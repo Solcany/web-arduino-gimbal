@@ -27,34 +27,74 @@
 
 body {
 	position: relative;
-	background: #ffeb16;
 	width: 100vw;
 	height: 100vh;
 
-	#p5_loading {
+	#overlay {
+		display :block;
+		width: 100vw;
+		height: 70vh;
+		background: blue;
 		position: absolute;
-		width: 100%;
-		height: 100%;
-		background: #ffeb16;
-		z-index: 999;
+		transition: top 0.75s;
+		z-index: 1000;
 
-		.container {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
 
-			img.logo {
-				width: 120px;
+		&.visible {
+			top: 0;
+		}
 
-			}
-			h1 {
-				@include fontFiraBlack(#000);
-			}
+		&.invisible {
+			top: -69vh;
 		}
 
 	}
 
+
+
+
+	#p5_loading {
+		position: absolute;
+		width: 0;
+		height: 0;
+
+
+		// .container {
+		// 	position: absolute;
+		// 	top: 50%;
+		// 	left: 50%;
+		// 	transform: translate(-50%, -50%);
+
+		// 	img.logo {
+		// 		width: 120px;
+
+		// 	}
+		// 	h1 {
+		// 		@include fontFiraBlack(#000);
+		// 	}
+		// }
+
+	}
+
+
+	#assetsPreloadOverlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 900;
+		background-color: black;
+		opacity: 0.9;
+		transition: opacity 0.35s;
+
+		&.invisible {
+			opacity: 0.0;
+		}
+
+		&.seethrough {
+			display: none;
+		}
+
+	}
 	div.content {
 		position: absolute;
 		left: 0;
@@ -118,10 +158,11 @@ body {
 		top: 30px;
 	}
 
-
 	canvas {
 		position: absolute;
 		z-index: 1;
+		background: url('../img/grid2.png');
+		background-repeat: cover;
 	}
 
 	.grid {

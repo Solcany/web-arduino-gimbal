@@ -1,7 +1,14 @@
+var isAppStarted = false;
+var areAssetsLoaded = false;
+var isConnectedToShiftr = false;
+//    hideOverlay('overlay');
+
+
 /* ––– p5 js ––– */
 
 let w = window.innerWidth;
 let h = window.innerHeight;
+
 
 var yaw = 0;
 var roll = 0;
@@ -20,6 +27,22 @@ var DEBUG_RenderAxises = false;
 var iphone, librem;
 var font
 
+
+function hideOverlay(overlayID) {
+	let overlay = document.getElementById(overlayID);
+	overlay.classList.remove("visible");
+	overlay.classList.add("invisible");
+}
+
+function hidePreloadOverlay(overlayID) {
+	let overlay = document.getElementById(overlayID);
+	overlay.classList.add("invisible");
+	setTimeout(function() {
+		overlay.classList.add("seethrough");
+	}, 10000);
+}
+
+
 function preload() {
   iphoneModel = loadModel("/models/iphone5_3.obj")
   libremModel = loadModel("/models/librem3.obj")
@@ -35,7 +58,6 @@ function setup() {
 	textSize(50)
 	textFont(font);
 
-
 	iphone = new yprModel(iphoneModel, 
 					   {x: -300, y: 0, z: 0},
 					   {fill: '#ff0000',
@@ -50,19 +72,27 @@ function setup() {
 						stroke: '#000000',
 						strokeWeight: 3.0},
 						{yaw: yaw, pitch: pitch, roll: roll})
+	iphone.update();
+	librem.update();
+
+	if(isConnectedToShiftr) {
+		document.getElementById("startButton").disabled = false;
+		hidePreloadOverlay('assetsPreloadOverlay');
+	}
 }
 
 function draw() {
 	clear();
+	if(isAppStarted) { 
+		iphone.update();
+		librem.update();
 
 
-	iphone.update();
+
+	}
 	iphone.render();
-	// librem.update();
-	// librem.render();
-	// rotateX(roll);
-	// rotateY(-yaw);
-	// rotateZ(pitch + pitchCompensation);
+	librem.render();
+
 
 }
 
@@ -123,11 +153,10 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappin
 
 
 window.onload = function() {
+let startButton = document.getElementById("startButton")
+	startButton.disabled = true;
 
 /* ––– MQTT ––– */
-
-
-
   var client = mqtt.connect('mqtt://msolcany~ypr@broker.shiftr.io', {
     clientId: 'browser-local'
   });
@@ -140,6 +169,7 @@ window.onload = function() {
    
   client.on('connect', function(){
     console.log('client has connected!');
+    isConnectedToShiftr = true;
   }); 
 
   client.subscribe('ypr/yaw');
@@ -150,9 +180,12 @@ window.onload = function() {
   client.on('message', function(topic, message) {
   	if (topic == 'ypr/yaw') {
   			yaw = Number(message.toString()).round(2)
+  			yaw *= -1;
   			// yaw = map(yaw, 0, PI, 0, TWO_PI);
     } else if (topic == 'ypr/pitch') {
   			pitch = Number(message.toString()).round(2)
+  			pitch += pitchComepnsation;
+
   			// pitch = map(pitch, 0, PI, 0, TWO_PI);
     } else {
   			roll = Number(message.toString()).round(2)
@@ -160,6 +193,12 @@ window.onload = function() {
 
   	}
   })
+
+  	  startButton.addEventListener("click", function() {
+  	  	isAppStarted = true;
+  	  	hideOverlay("overlay");
+  	  })
+
 
 
   function easeToVal(currVal, newVal, time) {
