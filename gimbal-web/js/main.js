@@ -1,6 +1,7 @@
 var isAppStarted = false;
 var areAssetsLoaded = false;
 var isConnectedToShiftr = false;
+var testDataLoaded = true;
 //    hideOverlay('overlay');
 
 
@@ -17,6 +18,7 @@ var pitch = 0;
 // in radians
 // var yawComepnsation = 0;
 var pitchCompensation = -0.09
+var yawCompensation = -1.05;
 
 var axisArmLength = 500;
 var axisoff = 25;
@@ -45,7 +47,7 @@ function hidePreloadOverlay(overlayID) {
 
 function preload() {
   iphoneModel = loadModel("/models/iphone5_3.obj")
-  libremModel = loadModel("/models/librem3.obj")
+  // libremModel = loadModel("/models/librem3.obj")
   font = loadFont('/fonts/fndrs.otf')
 }
 
@@ -62,36 +64,36 @@ function setup() {
 					   {x: -300, y: 0, z: 0},
 					   {fill: '#ff0000',
 						stroke: '#000000',
-						strokeWeight: 3.0},
+						strokeWeight: 1.0},
 						{yaw: yaw, pitch: pitch, roll: roll},
 						TWO_PI*10)
 
-	librem = new yprModel(libremModel, 
-					   {x: 300, y: 0, z: 0},
-					   {fill: '#ff0000',
-						stroke: '#000000',
-						strokeWeight: 3.0},
-						{yaw: yaw, pitch: pitch, roll: roll})
+	// librem = new yprModel(libremModel, 
+	// 				   {x: 300, y: 0, z: 0},
+	// 				   {fill: '#ff0000',
+	// 					stroke: '#000000',
+	// 					strokeWeight: 1.0},
+	// 					{yaw: yaw, pitch: pitch, roll: roll})
 	iphone.update();
-	librem.update();
-
-	if(isConnectedToShiftr) {
-		document.getElementById("startButton").disabled = false;
-		hidePreloadOverlay('assetsPreloadOverlay');
-	}
+	// librem.update();
+	areAssetsLoaded = true;
 }
 
 function draw() {
+	if(isConnectedToShiftr && areAssetsLoaded && testDataLoaded) {
+		document.getElementById("startButton").disabled = false;
+		hidePreloadOverlay('assetsPreloadOverlay');
+		testDataLoaded = false;
+	}
+	iphone.update();
+
 	clear();
 	if(isAppStarted) { 
-		iphone.update();
-		librem.update();
-
-
-
+		// librem.update();
 	}
+
+	
 	iphone.render();
-	librem.render();
 
 
 }
@@ -105,8 +107,8 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappin
 		push()
 			translate(pos.x, pos.y, pos.z);
 			rotateX(roll);
-			rotateY(yaw)
-			rotateZ(pitch);
+			rotateY(-yaw + yawCompensation)
+			rotateZ(pitch + pitchCompensation);
 
 			stroke(style.stroke);
 			strokeWeight(style.strokeWeight);
@@ -115,10 +117,10 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappin
 
 			model(preloadedModel);	
 
-			push()
-			translate(0,0,100)
-			text('p5.js', 0, 0);
-			pop()
+			// push()
+			// translate(0,0,100)
+			// text('p5.js', 0, 0);
+			// pop()
 
 			if(DEBUG_RenderAxises) {
 				this.renderAxises();
@@ -138,7 +140,7 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappin
 
 	this.update = function() {
 		this.yaw = yaw;
-		this.pitch = pitch;
+		this.pitch = pitch; 
 		this.roll = roll;
 
 		if(yawPitchRollRemapping != null) {
@@ -161,12 +163,6 @@ let startButton = document.getElementById("startButton")
     clientId: 'browser-local'
   });
     
-  var vals;
- 
-  var data = [];
-  var y;
-  var z;
-   
   client.on('connect', function(){
     console.log('client has connected!');
     isConnectedToShiftr = true;
@@ -180,12 +176,9 @@ let startButton = document.getElementById("startButton")
   client.on('message', function(topic, message) {
   	if (topic == 'ypr/yaw') {
   			yaw = Number(message.toString()).round(2)
-  			yaw *= -1;
   			// yaw = map(yaw, 0, PI, 0, TWO_PI);
     } else if (topic == 'ypr/pitch') {
   			pitch = Number(message.toString()).round(2)
-  			pitch += pitchComepnsation;
-
   			// pitch = map(pitch, 0, PI, 0, TWO_PI);
     } else {
   			roll = Number(message.toString()).round(2)
@@ -200,48 +193,8 @@ let startButton = document.getElementById("startButton")
   	  })
 
 
-
-  function easeToVal(currVal, newVal, time) {
-  	var diff = currVal - newVal;
-
-  }
-
   Number.prototype.round = function(places) {
-  return +(Math.round(this + "e+" + places)  + "e-" + places);
+  	return +(Math.round(this + "e+" + places)  + "e-" + places);
+	}
 }
 
-
- //  function Utf8ArrayToStr(array) {
-	//     var out, i, len, c;
-	//     var char2, char3;
-
-	//     out = "";
-	//     len = array.length;
-	//     i = 0;
-	//     while(i < len) {
-	// 	c = array[i++];
-	// 	switch(c >> 4)
-	// 	{ 
-	// 	  case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-	// 	    // 0xxxxxxx
-	// 	    out += String.fromCharCode(c);
-	// 	    break;
-	// 	  case 12: case 13:
-	// 	    // 110x xxxx   10xx xxxx
-	// 	    char2 = array[i++];
-	// 	    out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
-	// 	    break;
-	// 	  case 14:
-	// 	    // 1110 xxxx  10xx xxxx  10xx xxxx
-	//         char2 = array[i++];
-	// 	    char3 = array[i++];
-	// 	    out += String.fromCharCode(((c & 0x0F) << 12) |
-	// 					   ((char2 & 0x3F) << 6) |
-	// 					   ((char3 & 0x3F) << 0));
-	// 	    break;
-	// 	}
-	//     }
-
-	//     return out;
-	// }
-}
