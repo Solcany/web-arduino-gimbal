@@ -21,7 +21,8 @@ var pitch = 0;
 // in radians
 // var yawComepnsation = 0;
 var pitchCompensation = -0.09
-var yawCompensation = -1.05;
+var yawCompensation = 1;
+var delayedYawComp = 0.;
 
 var axisArmLength = 500;
 var axisoff = 25;
@@ -50,7 +51,7 @@ function hidePreloadOverlay(overlayID) {
 
 function preload() {
   iphoneModel = loadModel("/models/iphone5_3.obj")
-  // libremModel = loadModel("/models/librem3.obj")
+  libremModel = loadModel("/models/librem3.obj")
   font = loadFont('/fonts/fndrs.otf')
 }
 
@@ -69,16 +70,14 @@ function setup() {
 						stroke: '#000000',
 						strokeWeight: 1.0},
 						{yaw: yaw, pitch: pitch, roll: roll},
-						true)
+						650.0)
 
-	// librem = new yprModel(libremModel, 
-	// 				   {x: 300, y: 0, z: 0},
-	// 				   {fill: '#ff0000',
-	// 					stroke: '#000000',
-	// 					strokeWeight: 1.0},
-	// 					{yaw: yaw, pitch: pitch, roll: roll})
-	iphone.update();
-	// librem.update();
+	librem = new yprModel(libremModel, 
+					   {x: 300, y: 0, z: 0},
+					   {fill: '#ff0000',
+						stroke: '#000000',
+						strokeWeight: 1.0},
+						{yaw: yaw + yawCompensation, pitch: pitch, roll: roll})
 	areAssetsLoaded = true;
 }
 
@@ -93,31 +92,49 @@ function draw() {
 
 	if(isAppStarted) { 
 		iphone.update();
+		librem.update();
 
+		iphone.render(); // !!!!
+		librem.render();
 	}
 
 	
-	iphone.render();
+
 
 
 }
 
-function yprModel(preloadedModel, pos, style, yawPitchRoll, isRotationHindered=false) {
+function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappingDelay=null) {
 	this.yaw = yawPitchRoll.yaw;
 	this.pitch = yawPitchRoll.pitch;
 	this.roll = yawPitchRoll.roll;
-	this.lastYaw = 0;
-	this.lastPitch = 0;
-	this.lastRoll = 0;
-	this.yawVelocity = 0;
-	this.pitchVelocity = 0;
-	this.rollVelocity = 0;
+
+	this.lastRoll = this.roll;
+	this.rollVel = 0;
+
+	this.lastYaw = this.yaw;;
+	this.yawVel = 0;
+
+
+	this.lastPitch = this.pitch;
+	this.pitchVel = 0;
+
+
+	if( yawPitchRollRemappingDelay != null) {
+		this.delay = yawPitchRollRemappingDelay;
+		this.isDelayed = true;
+	}
 
 	this.render = function() {
 		push()
 			translate(pos.x, pos.y, pos.z);
 			// rotateX(this.roll);
-			rotateY(-this.yaw + yawCompensation)
+			if(this.isDelayed) {
+				rotateY(-this.yaw + delayedYawComp)
+			} else {
+				rotateY(-this.yaw + yawCompensation)
+
+			}
 			// rotateZ(this.pitch + pitchCompensation);
 
 			stroke(style.stroke);
@@ -148,71 +165,98 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, isRotationHindered=f
 		line(0,0, -axisArmLength, 0,0,axisArmLength)	
 	};
 
-
-	this.delayedRotation = function() {
-		let yawRemapped = map(yaw, -PI, PI, 0, TWO_PI);
-			yawRemapped = yawRemapped.round(3);
-
-		// let rollRemapped = map(roll, -PI, PI, 0, TWO_PI);
-		// 	rollRemapped = rollRemapped.round(3);
-
-		// let pitchRemapped = map(pitch, -PI, PI, 0, TWO_PI);
-		// 	pitchRemapped = pitchRemapped.round(3);
+	this.delayedRoll = function() {
+		let rollRemapped = map(roll, -PI, PI, 0, TWO_PI);
+			rollRemapped = rollRemapped.round(3);
 			
-			// if(!isNaN(yawRemapped) && !isNaN(this.lastYaw) &&
-			   // !isNaN(rollRemapped) && !isNaN(this.lastRoll) &&
-			   // !isNaN(pitchRemapped) && !isNaN(this.lastPitch)) {
-			if(!isNaN(yawRemapped) && !isNaN(this.lastYaw) ) {
-				    let yawAcceleration = abs((yawRemapped - this.lastYaw)/500.0);
-				    	yawAcceleration = yawAcceleration.round(2)			    
-				    	console.log("acc: " + yawAcceleration);
-				    	if(abs(yawRemapped - this.lastYaw) < 4.5) {
-							if(yawAcceleration != 0) {
-								this.yawVelocity += yawAcceleration;
-								console.log("adding");
-					    		if( yawRemapped > this.lastYaw) {
-									this.yaw += this.yawVelocity;
+			if(!isNaN(rollRemapped) && !isNaN(this.lastRoll)) {
+				    let rollAcc = abs((rollRemapped - this.lastRoll)/this.delay);
+				    	rollAcc = rollAcc.round(3)
+				    	if(abs(rollRemapped - this.lastRoll) < 4.5) {
+							if(rollAcc != 0) {
+								this.rollVel += rollAcc;
+
+					    		if( rollRemapped > this.lastRoll) {
+									this.roll += this.rollVel;
 								} else {
-									this.yaw -= this.yawVelocity;
+									this.roll -= this.rollVel;
 								}
 							}
 						} else {
 							console.log("roll cycle!");
 						}
-				console.log("yaw " + this.yaw);
-				this.lastYaw = yawRemapped;						
-			}
+
+					this.lastRoll = rollRemapped;
+				}
+				console.log(this.roll);
+	}
 
 
-				 //    let rollAcceleration = abs((rollRemapped - this.lastRoll)/500.0);
-				 //    	rollAcceleration = rollAcceleration.round(2)
+	this.delayedYaw = function() {
+		let yawRemapped = map(yaw, -PI, PI, 0, TWO_PI);
+			yawRemapped = yawRemapped.round(3);
+			
+			if(!isNaN(yawRemapped) && !isNaN(this.lastYaw)) {
+				    let yawAcc = abs((yawRemapped - this.lastYaw)/this.delay);
+				    	yawAcc = yawAcc.round(3)
+				    	if(abs(yawRemapped - this.lastYaw) < 4.5) {
+							if(yawAcc != 0) {
+								this.yawVel += yawAcc;
 
-				 //    let pitchAcceleration = abs((rollRemapped - this.lastPitch)/500.0);
-				 //    	pitchAcceleration = pitchAcceleration.round(2)	
+					    		if( yawRemapped > this.lastYaw) {
+									this.yaw += this.yawVel;
+								} else {
+									this.yaw -= this.yawVel;
+								}
+							}
+						} else {
+							console.log("yaw cycle!");
+						}
 
-				 //    	if(abs(yawRemapped - this.lastYaw) < 4.5) {
-					// 		if(rollAcceleration != 0) {
-					// 			this.yawVelocity += yawAcceleration;
+					this.lastYaw = yawRemapped;
+				}			
+	}
 
-					//     		if( yawRemapped > this.lastYaw) {
-					// 				this.yaw += this.yawVelocity;
-					// 			} else {
-					// 				this.yaw -= this.yawVelocity;
-					// 			}
-					// 		}
-					// 	} else {
-					// 		console.log("yaw cycle!");
-					// 	}
-					// this.lastYaw = yawRemapped;						
-					// this.lastRoll = rollRemapped;
-		}			
+	this.delayedPitch = function() {
+		let pitchRemapped = map(pitch, -PI, PI, 0, TWO_PI);
+			pitchRemapped = pitchRemapped.round(3);
+			
+			if(!isNaN(pitchRemapped) && !isNaN(this.lastPitch)) {
+				    let pitchAcc = abs((pitchRemapped - this.lastPitch)/this.delay);
+				    	pitchAcc = pitchAcc.round(3)
+				    	if(abs(pitchRemapped - this.lastPitch) < 4.5) {
+							if(pitchAcc != 0) {
+								this.pitchVel += pitchAcc;
 
+					    		if( pitchRemapped > this.lastPitch) {
+									this.pitch += this.pitchVel;
+								} else {
+									this.pitch -= this.pitchVel;
+								}
+							}
+						} else {
+							console.log("pitch cycle!");
+						}
+
+					this.lastPitch = pitchRemapped;
+				}			
+	}
+
+	this.delayedRotationUpdate = function() {
+		this.delayedYaw()
+		this.delayedRoll();
+		this.delayedPitch();
+	}
 
 
 	this.update = function() {
-		// this.yaw = yaw;
-		// this.pitch = pitch; 
-		setInterval(this.delayedRotation(), 100)
+		if( yawPitchRollRemappingDelay != null) {
+			setInterval(this.delayedRotationUpdate(), 10)
+		} else {
+			this.yaw = yaw;
+			this.pitch = pitch;
+			this.roll = roll;
+		}
 	};
 
 
