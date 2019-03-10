@@ -151,20 +151,22 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappin
 			rollRemapped = rollRemapped.round(3);
 			
 			if(!isNaN(rollRemapped) && !isNaN(this.lastRoll)) {
-				    let acceleration = abs((rollRemapped - this.lastRoll)/250.0);
-				    	acceleration = acceleration.round(4)
-				    // console.log("acc: " + acceleration);
-						if(acceleration != 0) {
-							this.velocity += acceleration;
+				    let acceleration = abs((rollRemapped - this.lastRoll)/500.0);
+				    	acceleration = acceleration.round(3)
+				    	if(abs(rollRemapped - this.lastRoll) < 4.5) {
+							if(acceleration != 0) {
+								this.velocity += acceleration;
 
-				    		if( rollRemapped > this.lastRoll) {
-								this.roll += this.velocity;
-							} else {
-								this.roll -= this.velocity;
+					    		if( rollRemapped > this.lastRoll) {
+									this.roll += this.velocity;
+								} else {
+									this.roll -= this.velocity;
+								}
 							}
-							// console.log("velocity: " + this.velocity);
-							// console.log("thisRol: " + this.roll);
+						} else {
+							console.log("cycle!");
 						}
+
 					this.lastRoll = rollRemapped;
 				}			
 	}
