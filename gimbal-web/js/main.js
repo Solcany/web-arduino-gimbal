@@ -69,7 +69,7 @@ function setup() {
 						stroke: '#000000',
 						strokeWeight: 1.0},
 						{yaw: yaw, pitch: pitch, roll: roll},
-						PI/25)
+						true)
 
 	// librem = new yprModel(libremModel, 
 	// 				   {x: 300, y: 0, z: 0},
@@ -102,20 +102,22 @@ function draw() {
 
 }
 
-function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemapping=null) {
+function yprModel(preloadedModel, pos, style, yawPitchRoll, isRotationHindered=false) {
 	this.yaw = yawPitchRoll.yaw;
 	this.pitch = yawPitchRoll.pitch;
 	this.roll = yawPitchRoll.roll;
+	this.lastYaw = 0;
+	this.lastPitch = 0;
 	this.lastRoll = 0;
-	this.accumulatedAngle = 0;
-	this.velocity = 0;
-	this.acceleration = 0;
+	this.yawVelocity = 0;
+	this.pitchVelocity = 0;
+	this.rollVelocity = 0;
 
 	this.render = function() {
 		push()
 			translate(pos.x, pos.y, pos.z);
-			rotateX(this.roll);
-			// rotateY(-this.yaw + yawCompensation)
+			// rotateX(this.roll);
+			rotateY(-this.yaw + yawCompensation)
 			// rotateZ(this.pitch + pitchCompensation);
 
 			stroke(style.stroke);
@@ -146,34 +148,70 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappin
 		line(0,0, -axisArmLength, 0,0,axisArmLength)	
 	};
 
-	this.delayedRotation = function() {
-		let rollRemapped = map(roll, -PI, PI, 0, TWO_PI);
-			rollRemapped = rollRemapped.round(3);
-			
-			if(!isNaN(rollRemapped) && !isNaN(this.lastRoll)) {
-				    let acceleration = abs((rollRemapped - this.lastRoll)/500.0);
-				    	acceleration = acceleration.round(3)
-				    	if(abs(rollRemapped - this.lastRoll) < 4.5) {
-							if(acceleration != 0) {
-								this.velocity += acceleration;
 
-					    		if( rollRemapped > this.lastRoll) {
-									this.roll += this.velocity;
+	this.delayedRotation = function() {
+		let yawRemapped = map(yaw, -PI, PI, 0, TWO_PI);
+			yawRemapped = yawRemapped.round(3);
+
+		// let rollRemapped = map(roll, -PI, PI, 0, TWO_PI);
+		// 	rollRemapped = rollRemapped.round(3);
+
+		// let pitchRemapped = map(pitch, -PI, PI, 0, TWO_PI);
+		// 	pitchRemapped = pitchRemapped.round(3);
+			
+			// if(!isNaN(yawRemapped) && !isNaN(this.lastYaw) &&
+			   // !isNaN(rollRemapped) && !isNaN(this.lastRoll) &&
+			   // !isNaN(pitchRemapped) && !isNaN(this.lastPitch)) {
+			if(!isNaN(yawRemapped) && !isNaN(this.lastYaw) ) {
+				    let yawAcceleration = abs((yawRemapped - this.lastYaw)/500.0);
+				    	yawAcceleration = yawAcceleration.round(2)			    
+				    	console.log("acc: " + yawAcceleration);
+				    	if(abs(yawRemapped - this.lastYaw) < 4.5) {
+							if(yawAcceleration != 0) {
+								this.yawVelocity += yawAcceleration;
+								console.log("adding");
+					    		if( yawRemapped > this.lastYaw) {
+									this.yaw += this.yawVelocity;
 								} else {
-									this.roll -= this.velocity;
+									this.yaw -= this.yawVelocity;
 								}
 							}
 						} else {
-							console.log("cycle!");
+							console.log("roll cycle!");
 						}
+				console.log("yaw " + this.yaw);
+				this.lastYaw = yawRemapped;						
+			}
 
-					this.lastRoll = rollRemapped;
-				}			
-	}
+
+				 //    let rollAcceleration = abs((rollRemapped - this.lastRoll)/500.0);
+				 //    	rollAcceleration = rollAcceleration.round(2)
+
+				 //    let pitchAcceleration = abs((rollRemapped - this.lastPitch)/500.0);
+				 //    	pitchAcceleration = pitchAcceleration.round(2)	
+
+				 //    	if(abs(yawRemapped - this.lastYaw) < 4.5) {
+					// 		if(rollAcceleration != 0) {
+					// 			this.yawVelocity += yawAcceleration;
+
+					//     		if( yawRemapped > this.lastYaw) {
+					// 				this.yaw += this.yawVelocity;
+					// 			} else {
+					// 				this.yaw -= this.yawVelocity;
+					// 			}
+					// 		}
+					// 	} else {
+					// 		console.log("yaw cycle!");
+					// 	}
+					// this.lastYaw = yawRemapped;						
+					// this.lastRoll = rollRemapped;
+		}			
+
+
 
 	this.update = function() {
-		this.yaw = yaw;
-		this.pitch = pitch; 
+		// this.yaw = yaw;
+		// this.pitch = pitch; 
 		setInterval(this.delayedRotation(), 100)
 	};
 
