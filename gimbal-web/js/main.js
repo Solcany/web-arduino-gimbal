@@ -8,8 +8,8 @@ var roll = 0;
 var pitch = 0;
 
 // in radians
-var yawComepnsation = -1.26;
-var pitchCompensation = 0.083;
+var yawComepnsation = 0;
+var pitchCompensation = -0.09 //0.083;
 
 let axisArmLength = 500;
 let axisoff = 25;
@@ -18,7 +18,7 @@ let iphone;
 var renderAxes = true;
 
 function preload() {
-  iphone = loadModel("/models/iphone5.obj")
+  iphone = loadModel("/models/iphone5_3.obj")
 }
 
 
@@ -32,7 +32,7 @@ function draw() {
 	// translate(250, 0, 0)
 	rotateX(roll);
 	rotateY(-yaw + yawComepnsation);
-	rotateZ(-pitch + pitchCompensation);
+	rotateZ(pitch + pitchCompensation);
 
 	if(renderAxes) {
 		strokeWeight(3.0);
@@ -46,7 +46,7 @@ function draw() {
 
 	stroke(0);
 	strokeWeight(1);
-	scale(4.0);
+	// scale(1);
 	fill('#ffeb16');
 	model(iphone);
 
