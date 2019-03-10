@@ -1,7 +1,7 @@
 var isAppStarted = false;
 var areAssetsLoaded = false;
 var isConnectedToShiftr = false;
-var testDataLoaded = true;
+var testIfDataLoaded = true;
 //    hideOverlay('overlay');
 
 
@@ -80,16 +80,16 @@ function setup() {
 }
 
 function draw() {
-	if(isConnectedToShiftr && areAssetsLoaded && testDataLoaded) {
+	if(testIfDataLoaded && isConnectedToShiftr && areAssetsLoaded) {
 		document.getElementById("startButton").disabled = false;
 		hidePreloadOverlay('assetsPreloadOverlay');
-		testDataLoaded = false;
+		testIfDataLoaded = false;
 	}
-	iphone.update();
 
 	clear();
+
 	if(isAppStarted) { 
-		// librem.update();
+		iphone.update();
 	}
 
 	
@@ -106,9 +106,9 @@ function yprModel(preloadedModel, pos, style, yawPitchRoll, yawPitchRollRemappin
 	this.render = function() {
 		push()
 			translate(pos.x, pos.y, pos.z);
-			rotateX(roll);
-			rotateY(-yaw + yawCompensation)
-			rotateZ(pitch + pitchCompensation);
+			rotateX(this.roll);
+			rotateY(-this.yaw + yawCompensation)
+			rotateZ(this.pitch + pitchCompensation);
 
 			stroke(style.stroke);
 			strokeWeight(style.strokeWeight);
